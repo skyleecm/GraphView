@@ -15,7 +15,8 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  * Licensed under the GNU Lesser General Public License (LGPL)
  * http://www.gnu.org/licenses/lgpl.html
  */
-public class LineGraphView extends GraphView {
+//public class LineGraphView extends GraphView {
+public class LineGraphView extends FixLabelsGraphView {
 	private final Paint paintBackground;
 	private boolean drawBackground;
 
