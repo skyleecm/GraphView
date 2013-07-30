@@ -30,7 +30,7 @@ import com.jjoe64.graphview.compatible.ScaleGestureDetector;
  * http://www.gnu.org/licenses/lgpl.html
  */
 abstract public class GraphView extends LinearLayout {
-	static final private class GraphViewConfig {
+	static final public class GraphViewConfig {
 		static final float BORDER = 20;
 		static final float VERTICAL_LABEL_WIDTH = 100;
 		static final float HORIZONTAL_LABEL_HEIGHT = 80;
