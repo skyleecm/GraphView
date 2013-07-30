@@ -71,9 +71,6 @@ abstract public class GraphView extends LinearLayout {
 			float graphheight = height - (2 * border);
 			graphwidth = width;
 
-			if (horlabels == null) {
-				horlabels = generateHorlabels(graphwidth);
-			}
 			if (verlabels == null) {
 				verlabels = generateVerlabels(graphheight);
 			}
@@ -87,20 +84,8 @@ abstract public class GraphView extends LinearLayout {
 				canvas.drawLine(horstart, y, width, y, paint);
 			}
 
-			// horizontal labels + lines
-			int hors = horlabels.length - 1;
-			for (int i = 0; i < horlabels.length; i++) {
-				paint.setColor(graphViewStyle.getGridColor());
-				float x = ((graphwidth / hors) * i) + horstart;
-				canvas.drawLine(x, height - border, x, border, paint);
-				paint.setTextAlign(Align.CENTER);
-				if (i==horlabels.length-1)
-					paint.setTextAlign(Align.RIGHT);
-				if (i==0)
-					paint.setTextAlign(Align.LEFT);
-				paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-				canvas.drawText(horlabels[i], x, height - 4, paint);
-			}
+			// call drawHorizontalLabelsLines to draw horizontal labels + lines
+            drawHorizontalLabelsLines(canvas, graphwidth, graphheight, border, horstart); 
 
 			paint.setTextAlign(Align.CENTER);
 			canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
@@ -361,6 +346,27 @@ abstract public class GraphView extends LinearLayout {
 			}
 		}
 	}
+
+    protected void drawHorizontalLabelsLines(Canvas canvas, float graphwidth,
+            float graphheight, float border, float horstart) {
+		if (horlabels == null) {
+			horlabels = generateHorlabels(graphwidth);
+		}
+		float height = graphheight + (2 * border);
+        int hors = horlabels.length - 1;
+        for (int i = 0; i < horlabels.length; i++) {
+            paint.setColor(graphViewStyle.getGridColor());
+            float x = ((graphwidth / hors) * i) + horstart;
+            canvas.drawLine(x, height - border, x, border, paint);
+            paint.setTextAlign(Align.CENTER);
+            if (i==horlabels.length-1)
+                paint.setTextAlign(Align.RIGHT);
+            if (i==0)
+                paint.setTextAlign(Align.LEFT);
+            paint.setColor(graphViewStyle.getHorizontalLabelsColor());
+            canvas.drawText(horlabels[i], x, height - 4, paint);
+        }
+    }
 
 	abstract public void drawSeries(Canvas canvas, GraphViewData[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style);
 
