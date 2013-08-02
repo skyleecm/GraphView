@@ -109,7 +109,8 @@ abstract public class GraphView extends LinearLayout {
 				drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).style);
 			}
 
-			if (showLegend) drawLegend(canvas, height, width);
+			//if (isShowLegend()) 
+            drawLegend(canvas, height, width);
 		}
 
 		private void onMoveGesture(float f) {
@@ -315,6 +316,8 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	protected void drawLegend(Canvas canvas, float height, float width) {
+		if (!isShowLegend())
+           return; 
 		int shapeSize = 15;
 
 		// rect
