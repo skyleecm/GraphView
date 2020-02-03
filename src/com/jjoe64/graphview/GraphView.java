@@ -250,19 +250,24 @@ abstract public class GraphView extends LinearLayout {
 	private CustomLabelFormatter customLabelFormatter;
 
 	public GraphView(Context context, AttributeSet attrs) {
-		this(context, attrs.getAttributeValue(null, "title"));
+		this(context, attrs.getAttributeValue(null, "title"), null);
 
 		int width = attrs.getAttributeIntValue("android", "layout_width", LayoutParams.MATCH_PARENT);
 		int height = attrs.getAttributeIntValue("android", "layout_height", LayoutParams.MATCH_PARENT);
 		setLayoutParams(new LayoutParams(width, height));
 	}
 
+	public GraphView(Context context, String title) {
+		this(context, title, null);
+    }
+
 	/**
 	 *
 	 * @param context
 	 * @param title [optional]
+	 * @param paint [optional]
 	 */
-	public GraphView(Context context, String title) {
+	public GraphView(Context context, String title, Paint paint) {
 		super(context);
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
@@ -273,7 +278,7 @@ abstract public class GraphView extends LinearLayout {
 
 		graphViewStyle = new GraphViewStyle();
 
-		paint = new Paint();
+		this.paint = (paint == null)? new Paint() : paint;
 		graphSeries = new ArrayList<GraphViewSeries>();
 
 		viewVerLabels = new VerLabelsView(context);

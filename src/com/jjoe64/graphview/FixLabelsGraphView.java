@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.util.AttributeSet;
+import android.text.TextPaint;
+import android.text.TextUtils;
 
 
 /**
@@ -57,9 +59,12 @@ abstract public class FixLabelsGraphView extends GraphView {
     }
 
     public FixLabelsGraphView(Context context, String title) {
-        super(context, title);
+        super(context, title, null);
     }
 
+    public FixLabelsGraphView(Context context, String title, Paint paint) {
+        super(context, title, paint);
+    }
 
     // save parameters for use in iDraw.drawAfterSeries
     private void setDrawParams(float graphwidth, float graphheight, 
@@ -107,17 +112,57 @@ abstract public class FixLabelsGraphView extends GraphView {
             paint.setColor(graphViewStyle.getGridColor());
             float x = (float) ((value - min)/diff) * graphwidth + horstart;
             canvas.drawLine(x, height - border, x, border, paint);
-            paint.setTextAlign(Align.CENTER);
-            if (x + halfLabelSize > graphwidth)
-                paint.setTextAlign(Align.RIGHT);
-            else
-                paint.setTextAlign(Align.LEFT);
             paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-            canvas.drawText(horlabels[i].label, x, height - 4, paint);
+            paint.setTextAlign(Align.CENTER);
+            // if right align, label may overwrite
+            if (x + halfLabelSize > graphwidth) {
+                paint.setTextAlign(Align.RIGHT);
+                // check if overwrite
+                String etxt = getRightAlignedLabel(i, diff, graphwidth);
+                canvas.drawText(etxt, x, height - 4, paint);
+            }
+            else {
+                paint.setTextAlign(Align.LEFT);
+                canvas.drawText(horlabels[i].label, x, height - 4, paint);
+            }
         }
         if (iDraw != null)
             iDraw.drawBeforeSeries(canvas, graphwidth, graphheight,
                 border, horstart, minX, maxX, minY, maxY);
+    }
+
+    // if right align, label may overwrite the previous label
+    // returns part of label that fits
+    protected String getRightAlignedLabel(int i, double diffX, float graphwidth) {
+        // if paint is not TextPaint, cannot use ellipsize, ..
+        String label = horlabels[i].label;
+        if (!(paint instanceof TextPaint) || (i == 0))
+            return label;
+        // check if overwrite
+        float textwidth = paint.measureText(label);
+        float prevTextwidth = paint.measureText(horlabels[i - 1].label);
+        float labelwidth = (float) ((horlabels[i].value - horlabels[i - 1].value)/diffX)
+                * graphwidth; 
+        if (textwidth + prevTextwidth > labelwidth) {
+            // use custom ellipsis
+            final String ellipsis = "\u2025";
+            CharSequence etxt = TextUtils.ellipsize(label, (TextPaint) paint,
+                    labelwidth - prevTextwidth, TextUtils.TruncateAt.START);
+            // replace default ellipsis ... with custom
+            if ((etxt.length() < label.length()) && (etxt.length() > 0)) {
+                // check can squeeze in 1 more char?
+                String stxt = ellipsis + label.substring(label.length() - etxt.length());
+                textwidth = paint.measureText(stxt);
+                if (textwidth + prevTextwidth <= labelwidth)
+                   return stxt;
+                // Note: subSequence throws StringIndexOutOfBoundsException 
+                //  in new nexus 7 with Chinese 
+                // return ellipsis + etxt.subSequence(1, etxt.length());
+                return ellipsis + etxt.toString().substring(1);
+            }
+            return etxt.toString();
+        }
+        return label;
     }
 
     // using this to call IDrawGraph.drawAfterSeries
@@ -141,9 +186,9 @@ abstract public class FixLabelsGraphView extends GraphView {
     @Override 
     protected double getMaxX(boolean ignoreViewport) { 
         double max = super.getMaxX(ignoreViewport);
-        double viewportSize = getViewPortSize(); 
+        double viewportSize = getViewPortSize();
         // if viewport is set, use this 
-        if (!ignoreViewport && viewportSize != 0) { 
+        if (!ignoreViewport && (viewportSize != 0)) { 
             return max; 
         } else { 
             // otherwise use the max x value and horlabels
@@ -165,7 +210,7 @@ abstract public class FixLabelsGraphView extends GraphView {
         double min = super.getMinX(ignoreViewport);
         double viewportSize = getViewPortSize(); 
         // if viewport is set, use this 
-        if (!ignoreViewport && viewportSize != 0) { 
+        if (!ignoreViewport && (viewportSize != 0)) { 
             return min; 
         } else { 
             // otherwise use the min x value and horlabels

@@ -29,7 +29,11 @@ public class LineGraphView extends FixLabelsGraphView {
 	}
 	
 	public LineGraphView(Context context, String title) {
-		super(context, title);
+        this(context, title, null);
+    }
+
+	public LineGraphView(Context context, String title, Paint paint) {
+		super(context, title, paint);
 
 		paintBackground = new Paint();
 		paintBackground.setARGB(255, 20, 40, 60);
